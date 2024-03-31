@@ -1,7 +1,9 @@
 #include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "list32i.h"
 #include "vec32i.h"
 
 #define FAIL                                                                   \
@@ -330,6 +332,326 @@ int test_vec32i_bubble_sort() {
 
 // -------------------------------------------
 
+int test_list32i_push_back() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_back(list, 42);
+    if (list->length != 1) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 0);
+    if (val != 42) {
+        FAIL;
+    }
+
+    list32i_push_back(list, 84);
+    if (list->length != 2) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 1);
+    if (val != 84) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+int test_list32i_push_front() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_front(list, 42);
+    if (list->length != 1) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 0);
+    if (val != 42) {
+        FAIL;
+    }
+
+    list32i_push_front(list, 84);
+    if (list->length != 2) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 0);
+    if (val != 84) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+int test_list32i_push_idx() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_idx(list, 0, 42);
+    if (list->length != 1) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 0);
+    if (val != 42) {
+        FAIL;
+    }
+
+    list32i_push_idx(list, 0, 84);
+    if (list->length != 2) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 0);
+    if (val != 84) {
+        FAIL;
+    }
+
+    list32i_push_idx(list, 5, 168);
+    if (list->length != 6) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 2);
+    if (val != 0) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 3);
+    if (val != 0) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 4);
+    if (val != 0) {
+        FAIL;
+    }
+    val = list32i_get_idx(list, 5);
+    if (val != 168) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+int test_list32i_pop_back() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_back(list, 42);
+    list32i_push_back(list, 84);
+    list32i_push_back(list, 168);
+    list32i_push_back(list, 336);
+
+    if (list->length != 4) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 3) {
+        FAIL;
+    }
+    if (val != 336) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 2) {
+        FAIL;
+    }
+    if (val != 168) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 1) {
+        FAIL;
+    }
+    if (val != 84) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 42) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    val = list32i_pop_back(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+int test_list32i_pop_front() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_back(list, 42);
+    list32i_push_back(list, 84);
+    list32i_push_back(list, 168);
+    list32i_push_back(list, 336);
+
+    if (list->length != 4) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 3) {
+        FAIL;
+    }
+    if (val != 42) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 2) {
+        FAIL;
+    }
+    if (val != 84) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 1) {
+        FAIL;
+    }
+    if (val != 168) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 336) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    val = list32i_pop_front(list);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+int test_list32i_pop_idx() {
+    list32i_t *list = list32i_new();
+    int32_t val;
+
+    if (list->length != 0) {
+        FAIL;
+    }
+
+    list32i_push_back(list, 42);
+    list32i_push_back(list, 84);
+    list32i_push_back(list, 168);
+    list32i_push_back(list, 336);
+
+    if (list->length != 4) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 1);
+    if (list->length != 3) {
+        FAIL;
+    }
+    if (val != 84) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 2);
+    if (list->length != 2) {
+        FAIL;
+    }
+    if (val != 336) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 5);
+    if (list->length != 2) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 0);
+    if (list->length != 1) {
+        FAIL;
+    }
+    if (val != 42) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 0);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 168) {
+        FAIL;
+    }
+
+    val = list32i_pop_idx(list, 0);
+    if (list->length != 0) {
+        FAIL;
+    }
+    if (val != 0) {
+        FAIL;
+    }
+
+    list32i_free(list);
+    return 0;
+}
+
+// -------------------------------------------
+
 #define RUN_TEST(func)                                                         \
     if (func() == 0) {                                                         \
         printf("OK - %s\n", #func);                                            \
@@ -348,6 +670,13 @@ int main(void) {
     RUN_TEST(test_vec32i_binary_search);
     RUN_TEST(test_vec32i_two_crystal_balls);
     RUN_TEST(test_vec32i_bubble_sort);
+
+    RUN_TEST(test_list32i_push_back);
+    RUN_TEST(test_list32i_push_front);
+    RUN_TEST(test_list32i_push_idx);
+    RUN_TEST(test_list32i_pop_back);
+    RUN_TEST(test_list32i_pop_front);
+    RUN_TEST(test_list32i_pop_idx);
 
     printf("--------------\nOK: %d\nKO: %d\n", ok, ko);
     return 0;
