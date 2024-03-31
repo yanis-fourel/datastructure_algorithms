@@ -6,8 +6,8 @@
 
 #include "vec32i.h"
 
-t_vec32i *vec32i_new(u_int32_t size, u_int32_t capacity) {
-    t_vec32i *res = malloc(sizeof(t_vec32i));
+vec32i_t *vec32i_new(u_int32_t size, u_int32_t capacity) {
+    vec32i_t *res = malloc(sizeof(vec32i_t));
     if (res == NULL) {
         return NULL;
     }
@@ -29,8 +29,8 @@ t_vec32i *vec32i_new(u_int32_t size, u_int32_t capacity) {
     return res;
 }
 
-t_vec32i *vec32i_from_buff(int32_t const *buff, size_t size) {
-    t_vec32i *res = vec32i_new(0, size);
+vec32i_t *vec32i_from_buff(int32_t const *buff, size_t size) {
+    vec32i_t *res = vec32i_new(0, size);
     if (res == NULL) {
         return NULL;
     }
@@ -39,12 +39,12 @@ t_vec32i *vec32i_from_buff(int32_t const *buff, size_t size) {
     return res;
 }
 
-void vec32i_free(t_vec32i *vec) {
+void vec32i_free(vec32i_t *vec) {
     free(vec->data);
     free(vec);
 }
 
-t_vec32i *vec32i_append(t_vec32i *vec, int32_t n) {
+vec32i_t *vec32i_append(vec32i_t *vec, int32_t n) {
     if (vec->size + 1 > vec->_cap) {
         vec->_cap *= 2;
         vec->data = realloc(vec->data, vec->_cap * sizeof(int32_t));
@@ -58,7 +58,7 @@ t_vec32i *vec32i_append(t_vec32i *vec, int32_t n) {
     return vec;
 }
 
-void vec32i_remove(t_vec32i *vec, size_t index) {
+void vec32i_remove(vec32i_t *vec, size_t index) {
     if (index >= vec->size) {
         fprintf(stderr, "Out of bound removal of index [%zu] on size %u\n",
                 index, vec->size);
@@ -70,14 +70,14 @@ void vec32i_remove(t_vec32i *vec, size_t index) {
     vec->size -= 1;
 }
 
-bool vec32i_eq(t_vec32i const *a, t_vec32i const *b) {
+bool vec32i_eq(vec32i_t const *a, vec32i_t const *b) {
     if (a->size != b->size) {
         return false;
     }
     return memcmp(a->data, b->data, a->size * sizeof(int32_t)) == 0;
 }
 
-void vec32i_print(t_vec32i *vec) {
+void vec32i_print(vec32i_t *vec) {
     printf("<vec32i size=%3u, cap=%3u: [", vec->size, vec->_cap);
     for (size_t i = 0; i < vec->size; ++i) {
         if (i != 0) {
@@ -88,7 +88,7 @@ void vec32i_print(t_vec32i *vec) {
     printf("]>\n");
 }
 
-ssize_t vec32i_search(t_vec32i const *vec, int32_t val) {
+ssize_t vec32i_search(vec32i_t const *vec, int32_t val) {
     for (size_t i = 0; i < vec->size; ++i) {
         if (vec->data[i] == val) {
             return i;
@@ -97,7 +97,7 @@ ssize_t vec32i_search(t_vec32i const *vec, int32_t val) {
     return -1;
 }
 
-ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val) {
+ssize_t vec32i_search_binary(vec32i_t const *vec, int32_t val) {
     size_t lo = 0;
     size_t hi = vec->size;
 
@@ -114,7 +114,7 @@ ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val) {
     return -1;
 }
 
-ssize_t vec32i_two_crystal_balls(t_vec32i const *vec) {
+ssize_t vec32i_two_crystal_balls(vec32i_t const *vec) {
     if (vec->size == 0) {
         return -1;
     }
@@ -142,7 +142,7 @@ ssize_t vec32i_two_crystal_balls(t_vec32i const *vec) {
     }
 }
 
-void vec32i_bubble_sort(t_vec32i const *vec) {
+void vec32i_bubble_sort(vec32i_t const *vec) {
     int32_t tmp;
 
     for (size_t i = 0; i < vec->size; ++i) {
