@@ -14,10 +14,10 @@ TESTBIN := build/tests
 .PHONY: run_tests
 run_tests: $(TESTBIN)
 	@echo "--- Running $(TESTBIN) ---"
-	@$(TESTBIN)
+	@valgrind $(TESTBIN)
 	
 $(TESTBIN): $(LIB) $(TESTSRC)
-	$(CC) $(TESTSRC) $(LIB) -I $(INCLUDEDIR) -o $(TESTBIN)
+	$(CC) $(TESTSRC) $(LIB) -g -I $(INCLUDEDIR) -o $(TESTBIN)
 
 $(LIB): $(OBJS)
 	@mkdir -p $(dir $@)
