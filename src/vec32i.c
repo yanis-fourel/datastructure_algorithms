@@ -1,30 +1,36 @@
-#include "vec32i.h"
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
-t_vec32i *vec32i_new(u_int32_t capacity) {
+#include "vec32i.h"
+
+t_vec32i *vec32i_new(u_int32_t size, u_int32_t capacity) {
     t_vec32i *res = malloc(sizeof(t_vec32i));
     if (res == NULL) {
         return NULL;
     }
 
+    if (size > capacity) {
+        capacity = size;
+    }
     if (capacity < 8) {
         capacity = 8;
     }
-    res->data = malloc(capacity * sizeof(int32_t));
+    res->data = calloc(capacity, sizeof(int32_t));
     if (res->data == NULL) {
         free(res);
         return NULL;
     }
 
     res->_cap = capacity;
-    res->size = 0;
+    res->size = size;
     return res;
 }
 
 t_vec32i *vec32i_from_buff(int32_t const *buff, size_t size) {
-    t_vec32i *res = vec32i_new(size);
+    t_vec32i *res = vec32i_new(0, size);
     if (res == NULL) {
         return NULL;
     }
@@ -58,7 +64,7 @@ void vec32i_remove(t_vec32i *vec, size_t index) {
                 index, vec->size);
         exit(EXIT_FAILURE);
     }
-    for (size_t i = index; i < vec->size; i++) {
+    for (size_t i = index; i < vec->size; ++i) {
         vec->data[i] = vec->data[i + 1];
     }
     vec->size -= 1;
@@ -73,7 +79,7 @@ bool vec32i_eq(t_vec32i const *a, t_vec32i const *b) {
 
 void vec32i_print(t_vec32i *vec) {
     printf("<vec32i size=%3u, cap=%3u: [", vec->size, vec->_cap);
-    for (size_t i = 0; i < vec->size; i++) {
+    for (size_t i = 0; i < vec->size; ++i) {
         if (i != 0) {
             printf(", ");
         }
@@ -83,7 +89,7 @@ void vec32i_print(t_vec32i *vec) {
 }
 
 ssize_t vec32i_search(t_vec32i const *vec, int32_t val) {
-    for (size_t i = 0; i < vec->size; i++) {
+    for (size_t i = 0; i < vec->size; ++i) {
         if (vec->data[i] == val) {
             return i;
         }
@@ -106,4 +112,32 @@ ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val) {
         }
     }
     return -1;
+}
+
+ssize_t vec32i_two_crystal_balls(t_vec32i const *vec) {
+    if (vec->size == 0) {
+        return -1;
+    }
+
+    size_t step = sqrt(vec->size);
+    if (step < 2) {
+        step = 2;
+    }
+    size_t i = step;
+    for (;; i += step) {
+        if (i >= vec->size) {
+            if (vec->data[vec->size - 1] == 0) {
+                return -1;
+            }
+            break;
+        }
+        if (vec->data[i]) {
+            break;
+        }
+    }
+    for (size_t j = (i - step);; ++j) {
+        if (vec->data[j]) {
+            return j;
+        }
+    }
 }

@@ -17,7 +17,7 @@ run_tests: $(TESTBIN)
 	@valgrind $(TESTBIN)
 	
 $(TESTBIN): $(LIB) $(TESTSRC)
-	$(CC) $(TESTSRC) $(LIB) -g -I $(INCLUDEDIR) -o $(TESTBIN)
+	$(CC) $(TESTSRC) $(LIB) -g -I $(INCLUDEDIR) -lm -o $(TESTBIN)
 
 $(LIB): $(OBJS)
 	@mkdir -p $(dir $@)
@@ -25,7 +25,7 @@ $(LIB): $(OBJS)
 
 $(OBJS): $(OBJDIR)%.o: $(SRCDIR)%.c
 	@mkdir -p $(dir $@)
-	$(CC) -c -I $(INCLUDEDIR) $< -o $@
+	$(CC) -c -I $(INCLUDEDIR) -g $< -o $@
 
 .PHONY: bear
 bear:

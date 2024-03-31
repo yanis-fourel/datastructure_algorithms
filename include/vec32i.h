@@ -15,7 +15,10 @@ typedef struct s_vec32i {
     vec32i_from_buff((int32_t const *)(int32_t[])__VA_ARGS__,                  \
                      sizeof((int32_t[])__VA_ARGS__) / sizeof(int32_t))
 
-t_vec32i *vec32i_new(u_int32_t capacity);
+/// Returns an array of given size with all zero elements, and with given
+/// capacity.
+/// If size > capacity, then capacity = size
+t_vec32i *vec32i_new(u_int32_t size, u_int32_t capacity);
 t_vec32i *vec32i_from_buff(int32_t const *buff, size_t size);
 void vec32i_free(t_vec32i *vec);
 
@@ -38,3 +41,7 @@ ssize_t vec32i_search(t_vec32i const *vec, int32_t val);
 /// O(log n)
 /// Faster than regular search, but only works on sorted vectors
 ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val);
+
+/// O(sqrt n))
+/// Very specialized question, only the truest will know
+ssize_t vec32i_two_crystal_balls(t_vec32i const *vec);

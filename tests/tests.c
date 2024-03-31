@@ -18,8 +18,8 @@
         fprintf(stderr, __format __VA_OPT__(, ) __VA_ARGS__);                  \
     }
 
-int test_vec32() {
-    t_vec32i *myvec = vec32i_new(0);
+int test_vec32i() {
+    t_vec32i *myvec = vec32i_new(0, 0);
     if (myvec == NULL) {
         eprintf("myvec is null");
         return 1;
@@ -96,7 +96,7 @@ int test_vec32() {
     return 0;
 }
 
-int test_vec32_search() {
+int test_vec32i_search() {
     t_vec32i *vec = vec32i_from({2, 1, -1, 9, -6, 0, 3});
     if (vec == NULL) {
         FAIL;
@@ -134,11 +134,9 @@ int test_vec32_search() {
     return 0;
 }
 
-int test_vec32_binary_search() {
+int test_vec32i_binary_search() {
     t_vec32i *vec = vec32i_from({-32, -6, 0, 1, 3, 7, 32, 1024});
-    //                             0,  1, 2, 3, 4, 5,  6,    7
-    //                             ^         $               ^
-    //                                       ^               ^
+
     if (vec == NULL) {
         FAIL;
     }
@@ -184,6 +182,79 @@ int test_vec32_binary_search() {
     return 0;
 }
 
+t_vec32i *create_two_crystal_balls_input(size_t size, ssize_t answer) {
+    t_vec32i *vec = vec32i_new(size, size);
+    if (vec == NULL) {
+        return NULL;
+    }
+
+    if (answer >= 0) {
+        for (; answer < size; ++answer) {
+            vec->data[answer] = 1;
+        }
+    }
+    return vec;
+}
+int test_vec32i_two_crystal_balls() {
+    {
+        ssize_t answer = 234;
+        t_vec32i *vec = create_two_crystal_balls_input(1000, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = 0;
+        t_vec32i *vec = create_two_crystal_balls_input(1000, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = 999;
+        t_vec32i *vec = create_two_crystal_balls_input(1000, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = -1;
+        t_vec32i *vec = create_two_crystal_balls_input(1000, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = -1;
+        t_vec32i *vec = create_two_crystal_balls_input(0, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = 0;
+        t_vec32i *vec = create_two_crystal_balls_input(1, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    {
+        ssize_t answer = 5;
+        t_vec32i *vec = create_two_crystal_balls_input(6, answer);
+        if (vec32i_two_crystal_balls(vec) != answer) {
+            FAIL;
+        }
+        vec32i_free(vec);
+    }
+    return 0;
+}
+
 // -------------------------------------------
 
 #define RUN_TEST(func)                                                         \
@@ -199,9 +270,10 @@ int main(void) {
     int ok = 0;
     int ko = 0;
 
-    RUN_TEST(test_vec32);
-    RUN_TEST(test_vec32_search);
-    RUN_TEST(test_vec32_binary_search);
+    RUN_TEST(test_vec32i);
+    RUN_TEST(test_vec32i_search);
+    RUN_TEST(test_vec32i_binary_search);
+    RUN_TEST(test_vec32i_two_crystal_balls);
 
     printf("--------------\nOK: %d\nKO: %d\n", ok, ko);
     return 0;
