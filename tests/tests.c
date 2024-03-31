@@ -255,6 +255,118 @@ int test_vec32i_two_crystal_balls() {
     return 0;
 }
 
+int test_vec32i_bubble_sort() {
+    {
+        t_vec32i *vec = vec32i_from({1, 0, 3});
+        t_vec32i *answer = vec32i_from({0, 1, 3});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            vec32i_print(vec);
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({-2, 0, 1, 3});
+        t_vec32i *answer = vec32i_from({-2, 0, 1, 3});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({2, 0, -3, -6});
+        t_vec32i *answer = vec32i_from({-6, -3, 0, 2});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({});
+        t_vec32i *answer = vec32i_from({});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({0, 0, 0, 0});
+        t_vec32i *answer = vec32i_from({0, 0, 0, 0});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({0, 0, 0, 0, 1, -1, 0, 0, 0});
+        t_vec32i *answer = vec32i_from({-1, 0, 0, 0, 0, 0, 0, 0, 1});
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+    {
+        t_vec32i *vec = vec32i_from({
+            56, 23, 19, 10, 6,  58, 21, 39, 50, 7,  45, 68, 46, 78, 98, 82, 14,
+            83, 12, 63, 60, 79, 76, 75, 90, 65, 40, 77, 74, 94, 18, 2,  92, 73,
+            13, 72, 61, 49, 52, 93, 9,  16, 8,  35, 88, 69, 97, 36, 99, 32,
+        });
+        t_vec32i *answer = vec32i_from({
+            2,  6,  7,  8,  9,  10, 12, 13, 14, 16, 18, 19, 21, 23, 32, 35, 36,
+            39, 40, 45, 46, 49, 50, 52, 56, 58, 60, 61, 63, 65, 68, 69, 72, 73,
+            74, 75, 76, 77, 78, 79, 82, 83, 88, 90, 92, 93, 94, 97, 98, 99,
+        });
+
+        if (vec == NULL) {
+            FAIL;
+        }
+        vec32i_bubble_sort(vec);
+        if (!vec32i_eq(vec, answer)) {
+            FAIL;
+        }
+        vec32i_free(vec);
+        vec32i_free(answer);
+    }
+
+    return 0;
+}
+
 // -------------------------------------------
 
 #define RUN_TEST(func)                                                         \
@@ -274,6 +386,7 @@ int main(void) {
     RUN_TEST(test_vec32i_search);
     RUN_TEST(test_vec32i_binary_search);
     RUN_TEST(test_vec32i_two_crystal_balls);
+    RUN_TEST(test_vec32i_bubble_sort);
 
     printf("--------------\nOK: %d\nKO: %d\n", ok, ko);
     return 0;

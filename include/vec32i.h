@@ -45,3 +45,6 @@ ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val);
 /// O(sqrt n))
 /// Very specialized question, only the truest will know
 ssize_t vec32i_two_crystal_balls(t_vec32i const *vec);
+
+/// O(n^2)
+void vec32i_bubble_sort(t_vec32i const *vec);
