@@ -1,3 +1,8 @@
+///
+/// Simple implementation of a growable array. It's just a contiguous block of
+/// memory. Good.
+///
+
 #pragma once
 
 #include <stdbool.h>
