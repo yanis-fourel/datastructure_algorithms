@@ -1,17 +1,33 @@
+BUILDDIR := build/
+OBJDIR := $(BUILDDIR)obj/
+SRCDIR := src/
+INCLUDEDIR := include/
 
-SRC := src/vec32i.c src/main.c
+SRC := $(shell find $(SRCDIR) -name "*.c")
+OBJS := $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)
 
-BIN := build/a.out
+TESTSRC := $(shell find tests -name "*.c")
 
-run: all
-	@echo "--- Running binary ---"
-	@$(BIN)
+LIB := build/dsalgo.a
+TESTBIN := build/tests
 
+.PHONY: run_tests
+run_tests: $(TESTBIN)
+	@echo "--- Running $(TESTBIN) ---"
+	@$(TESTBIN)
+	
+$(TESTBIN): $(LIB) $(TESTSRC)
+	$(CC) $(TESTSRC) $(LIB) -I $(INCLUDEDIR) -o $(TESTBIN)
 
-all:
-	$(CC) $(SRC) -I include/ -o $(BIN)
+$(LIB): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(AR) -rcs $(LIB) $(OBJS)
 
+$(OBJS): $(OBJDIR)%.o: $(SRCDIR)%.c
+	@mkdir -p $(dir $@)
+	$(CC) -c -I $(INCLUDEDIR) $< -o $@
+
+.PHONY: bear
 bear:
-	bear -- make all
+	bear -- make
 
-.PHONY: all run
