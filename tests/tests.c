@@ -97,7 +97,7 @@ int test_vec32() {
 }
 
 int test_vec32_search() {
-    t_vec32i *vec = vec32i_from({2, 1, 9, 0, 3});
+    t_vec32i *vec = vec32i_from({2, 1, -1, 9, -6, 0, 3});
     if (vec == NULL) {
         FAIL;
     }
@@ -108,18 +108,79 @@ int test_vec32_search() {
     if (vec32i_search(vec, 1) != 1) {
         FAIL;
     }
-    if (vec32i_search(vec, 9) != 2) {
+    if (vec32i_search(vec, -1) != 2) {
         FAIL;
     }
-    if (vec32i_search(vec, 0) != 3) {
+    if (vec32i_search(vec, 9) != 3) {
         FAIL;
     }
-    if (vec32i_search(vec, 3) != 4) {
+    if (vec32i_search(vec, -6) != 4) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 0) != 5) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 3) != 6) {
         FAIL;
     }
     if (vec32i_search(vec, 4) != -1) {
         FAIL;
     }
+    if (vec32i_search(vec, -2) != -1) {
+        FAIL;
+    }
+
+    vec32i_free(vec);
+    return 0;
+}
+
+int test_vec32_binary_search() {
+    t_vec32i *vec = vec32i_from({-32, -6, 0, 1, 3, 7, 32, 1024});
+    //                             0,  1, 2, 3, 4, 5,  6,    7
+    //                             ^         $               ^
+    //                                       ^               ^
+    if (vec == NULL) {
+        FAIL;
+    }
+
+    if (vec32i_search_binary(vec, -32) != 0) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, -6) != 1) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 0) != 2) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 1) != 3) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 3) != 4) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 7) != 5) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 32) != 6) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 1024) != 7) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 89) != -1) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, -1) != -1) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, 9000) != -1) {
+        FAIL;
+    }
+    if (vec32i_search_binary(vec, -9000) != -1) {
+        FAIL;
+    }
+
+    vec32i_free(vec);
     return 0;
 }
 
@@ -140,6 +201,7 @@ int main(void) {
 
     RUN_TEST(test_vec32);
     RUN_TEST(test_vec32_search);
+    RUN_TEST(test_vec32_binary_search);
 
     printf("--------------\nOK: %d\nKO: %d\n", ok, ko);
     return 0;

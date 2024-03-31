@@ -38,8 +38,6 @@ void vec32i_free(t_vec32i *vec) {
     free(vec);
 }
 
-// This potentially reallocates the data field, don't keep any reference to the
-// old pointer
 t_vec32i *vec32i_append(t_vec32i *vec, int32_t n) {
     if (vec->size + 1 > vec->_cap) {
         vec->_cap *= 2;
@@ -84,10 +82,27 @@ void vec32i_print(t_vec32i *vec) {
     printf("]>\n");
 }
 
-size_t vec32i_search(t_vec32i const *vec, int32_t val) {
+ssize_t vec32i_search(t_vec32i const *vec, int32_t val) {
     for (size_t i = 0; i < vec->size; i++) {
         if (vec->data[i] == val) {
             return i;
+        }
+    }
+    return -1;
+}
+
+ssize_t vec32i_search_binary(t_vec32i const *vec, int32_t val) {
+    size_t lo = 0;
+    size_t hi = vec->size;
+
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (vec->data[mid] == val) {
+            return mid;
+        } else if (vec->data[mid] < val) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
         }
     }
     return -1;
