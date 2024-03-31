@@ -28,7 +28,7 @@ t_vec32i *vec32i_from_buff(int32_t const *buff, size_t size) {
     if (res == NULL) {
         return NULL;
     }
-    memcpy(res->data, buff, size);
+    memcpy(res->data, buff, size * sizeof(int32_t));
     res->size = size;
     return res;
 }
@@ -70,7 +70,7 @@ bool vec32i_eq(t_vec32i const *a, t_vec32i const *b) {
     if (a->size != b->size) {
         return false;
     }
-    return memcmp(a->data, b->data, a->size) == 0;
+    return memcmp(a->data, b->data, a->size * sizeof(int32_t)) == 0;
 }
 
 void vec32i_print(t_vec32i *vec) {
@@ -82,4 +82,13 @@ void vec32i_print(t_vec32i *vec) {
         printf("%d", vec->data[i]);
     }
     printf("]>\n");
+}
+
+size_t vec32i_search(t_vec32i const *vec, int32_t val) {
+    for (size_t i = 0; i < vec->size; i++) {
+        if (vec->data[i] == val) {
+            return i;
+        }
+    }
+    return -1;
 }

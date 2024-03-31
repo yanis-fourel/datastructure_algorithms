@@ -1,25 +1,22 @@
-#include "vec32i.h"
 #include <errno.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "vec32i.h"
 
 #define FAIL                                                                   \
     eprintf("failure\n");                                                      \
     return 1;
 
-int eprintf(const char *__restrict __format, ...) __nonnull((1)) {
-    int res = 0;
-    res += fprintf(stderr, "%d: ", __LINE__);
-    if (errno) {
-        res += fprintf(stderr, "(errno %d: %s): ", errno, strerror(errno));
+#define eprintf(__format, ...)                                                 \
+    {                                                                          \
+        fprintf(stderr, "%d: ", __LINE__);                                     \
+        if (errno) {                                                           \
+            fprintf(stderr, "(errno %d: %s): ", errno, strerror(errno));       \
+        }                                                                      \
+        fprintf(stderr, __format __VA_OPT__(, ) __VA_ARGS__);                  \
     }
-    va_list ptr;
-    va_start(ptr, __format);
-    res += vfprintf(stderr, __format, ptr);
-    return res;
-}
 
 int test_vec32() {
     t_vec32i *myvec = vec32i_new(0);
@@ -99,6 +96,33 @@ int test_vec32() {
     return 0;
 }
 
+int test_vec32_search() {
+    t_vec32i *vec = vec32i_from({2, 1, 9, 0, 3});
+    if (vec == NULL) {
+        FAIL;
+    }
+
+    if (vec32i_search(vec, 2) != 0) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 1) != 1) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 9) != 2) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 0) != 3) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 3) != 4) {
+        FAIL;
+    }
+    if (vec32i_search(vec, 4) != -1) {
+        FAIL;
+    }
+    return 0;
+}
+
 // -------------------------------------------
 
 #define RUN_TEST(func)                                                         \
@@ -115,6 +139,7 @@ int main(void) {
     int ko = 0;
 
     RUN_TEST(test_vec32);
+    RUN_TEST(test_vec32_search);
 
     printf("--------------\nOK: %d\nKO: %d\n", ok, ko);
     return 0;
