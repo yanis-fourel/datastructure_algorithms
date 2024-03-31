@@ -4,13 +4,11 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "alloc.h"
 #include "vec32i.h"
 
 vec32i_t *vec32i_new(u_int32_t size, u_int32_t capacity) {
-    vec32i_t *res = malloc(sizeof(vec32i_t));
-    if (res == NULL) {
-        return NULL;
-    }
+    vec32i_t *res = malloc_or_panic(sizeof(vec32i_t));
 
     if (size > capacity) {
         capacity = size;
@@ -18,11 +16,7 @@ vec32i_t *vec32i_new(u_int32_t size, u_int32_t capacity) {
     if (capacity < 8) {
         capacity = 8;
     }
-    res->data = calloc(capacity, sizeof(int32_t));
-    if (res->data == NULL) {
-        free(res);
-        return NULL;
-    }
+    res->data = calloc_or_panic(capacity, sizeof(int32_t));
 
     res->_cap = capacity;
     res->size = size;
@@ -31,9 +25,6 @@ vec32i_t *vec32i_new(u_int32_t size, u_int32_t capacity) {
 
 vec32i_t *vec32i_from_buff(int32_t const *buff, size_t size) {
     vec32i_t *res = vec32i_new(0, size);
-    if (res == NULL) {
-        return NULL;
-    }
     memcpy(res->data, buff, size * sizeof(int32_t));
     res->size = size;
     return res;
@@ -44,18 +35,14 @@ void vec32i_free(vec32i_t *vec) {
     free(vec);
 }
 
-vec32i_t *vec32i_append(vec32i_t *vec, int32_t n) {
+void vec32i_append(vec32i_t *vec, int32_t n) {
     if (vec->size + 1 > vec->_cap) {
         vec->_cap *= 2;
-        vec->data = realloc(vec->data, vec->_cap * sizeof(int32_t));
-        if (vec->data == NULL) {
-            return NULL;
-        }
+        vec->data = realloc_or_panic(vec->data, vec->_cap * sizeof(int32_t));
     }
 
     vec->data[vec->size] = n;
     vec->size += 1;
-    return vec;
 }
 
 void vec32i_remove(vec32i_t *vec, size_t index) {

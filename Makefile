@@ -1,7 +1,8 @@
 BUILDDIR := build/
 OBJDIR := $(BUILDDIR)obj/
 SRCDIR := src/
-INCLUDEDIR := include/
+
+CFLAGS := -Wall -Wextra -g -I include/
 
 SRC := $(shell find $(SRCDIR) -name "*.c")
 OBJS := $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)
@@ -17,7 +18,7 @@ run_tests: $(TESTBIN)
 	@valgrind $(TESTBIN)
 	
 $(TESTBIN): $(LIB) $(TESTSRC)
-	$(CC) $(TESTSRC) $(LIB) -g -I $(INCLUDEDIR) -lm -o $(TESTBIN)
+	$(CC) $(TESTSRC) $(LIB) $(CFLAGS) -lm -o $(TESTBIN)
 
 $(LIB): $(OBJS)
 	@mkdir -p $(dir $@)
@@ -25,7 +26,7 @@ $(LIB): $(OBJS)
 
 $(OBJS): $(OBJDIR)%.o: $(SRCDIR)%.c
 	@mkdir -p $(dir $@)
-	$(CC) -c -I $(INCLUDEDIR) -g $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 .PHONY: bear
 bear:

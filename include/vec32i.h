@@ -23,15 +23,19 @@ typedef struct s_vec32i {
 /// Returns an array of given size with all zero elements, and with given
 /// capacity.
 /// If size > capacity, then capacity = size
+/// Always return a valid pointer. Panics in case of allocation error.
 vec32i_t *vec32i_new(u_int32_t size, u_int32_t capacity);
+
+/// Always return a valid pointer. Panics in case of allocation error.
 vec32i_t *vec32i_from_buff(int32_t const *buff, size_t size);
+
 void vec32i_free(vec32i_t *vec);
 
 /// O(1)
 /// Returns NULL if realloc failed, else return vec.
 /// This potentially reallocates the data field, don't keep any reference to the
 /// old vec->data pointer.
-vec32i_t *vec32i_append(vec32i_t *vec, int32_t n);
+void vec32i_append(vec32i_t *vec, int32_t n);
 
 /// O(1)
 /// Removes given index

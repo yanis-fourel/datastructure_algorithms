@@ -1,6 +1,5 @@
 #include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "vec32i.h"
@@ -20,10 +19,6 @@
 
 int test_vec32i() {
     vec32i_t *myvec = vec32i_new(0, 0);
-    if (myvec == NULL) {
-        eprintf("myvec is null");
-        return 1;
-    }
 
     if (myvec->size != 0) {
         FAIL;
@@ -38,10 +33,7 @@ int test_vec32i() {
     }
 
     for (int i = 0; i < 10; i++) {
-        myvec = vec32i_append(myvec, i);
-        if (myvec == NULL) {
-            FAIL;
-        }
+        vec32i_append(myvec, i);
     }
 
     vec32i_remove(myvec, 7);
@@ -98,9 +90,6 @@ int test_vec32i() {
 
 int test_vec32i_search() {
     vec32i_t *vec = vec32i_from({2, 1, -1, 9, -6, 0, 3});
-    if (vec == NULL) {
-        FAIL;
-    }
 
     if (vec32i_search(vec, 2) != 0) {
         FAIL;
@@ -136,10 +125,6 @@ int test_vec32i_search() {
 
 int test_vec32i_binary_search() {
     vec32i_t *vec = vec32i_from({-32, -6, 0, 1, 3, 7, 32, 1024});
-
-    if (vec == NULL) {
-        FAIL;
-    }
 
     if (vec32i_search_binary(vec, -32) != 0) {
         FAIL;
@@ -184,12 +169,9 @@ int test_vec32i_binary_search() {
 
 vec32i_t *create_two_crystal_balls_input(size_t size, ssize_t answer) {
     vec32i_t *vec = vec32i_new(size, size);
-    if (vec == NULL) {
-        return NULL;
-    }
 
     if (answer >= 0) {
-        for (; answer < size; ++answer) {
+        for (; (size_t)answer < size; ++answer) {
             vec->data[answer] = 1;
         }
     }
@@ -260,9 +242,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({1, 0, 3});
         vec32i_t *answer = vec32i_from({0, 1, 3});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             vec32i_print(vec);
@@ -275,9 +254,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({-2, 0, 1, 3});
         vec32i_t *answer = vec32i_from({-2, 0, 1, 3});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
@@ -289,9 +265,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({2, 0, -3, -6});
         vec32i_t *answer = vec32i_from({-6, -3, 0, 2});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
@@ -303,9 +276,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({});
         vec32i_t *answer = vec32i_from({});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
@@ -317,9 +287,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({0, 0, 0, 0});
         vec32i_t *answer = vec32i_from({0, 0, 0, 0});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
@@ -331,9 +298,6 @@ int test_vec32i_bubble_sort() {
         vec32i_t *vec = vec32i_from({0, 0, 0, 0, 1, -1, 0, 0, 0});
         vec32i_t *answer = vec32i_from({-1, 0, 0, 0, 0, 0, 0, 0, 1});
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
@@ -353,9 +317,6 @@ int test_vec32i_bubble_sort() {
             74, 75, 76, 77, 78, 79, 82, 83, 88, 90, 92, 93, 94, 97, 98, 99,
         });
 
-        if (vec == NULL) {
-            FAIL;
-        }
         vec32i_bubble_sort(vec);
         if (!vec32i_eq(vec, answer)) {
             FAIL;
