@@ -69,7 +69,7 @@ bool vec_eq(vec_t const *a, vec_t const *b) {
     return memcmp(a->data, b->data, a->size) == 0;
 }
 
-void vec_print(vec_t *vec) {
+void vec_print(vec_t const *vec) {
     printf("<vec size=%3zu, cap=%3zu, elsize=%3zu: [", vec->size, vec->_cap,
            vec->elsize);
     for (size_t i = 0; i < vec->size * vec->elsize; ++i) {
@@ -113,34 +113,35 @@ ssize_t vec_search_binary(vec_t const *vec, void const *val,
     return -1;
 }
 
-ssize_t vec_two_crystal_balls(vec_t const *vec) {
-    if (vec->size == 0) {
-        return -1;
-    }
-
-    uint8_t const *data = (uint8_t const *)vec->data;
-    size_t step = sqrt(vec->size);
-    if (step < 2) {
-        step = 2;
-    }
-    size_t i = step;
-    for (;; i += step) {
-        if (i >= vec->size) {
-            if (data[vec->size - 1] == 0) {
-                return -1;
-            }
-            break;
-        }
-        if (data[i]) {
-            break;
-        }
-    }
-    for (size_t j = (i - step);; ++j) {
-        if (data[j]) {
-            return j;
-        }
-    }
-}
+// TODO: only implement for vec_bool
+// ssize_t vec_two_crystal_balls(vec_t const *vec) {
+//     if (vec->size == 0) {
+//         return -1;
+//     }
+//
+//     uint8_t const *data = (uint8_t const *)vec->data;
+//     size_t step = sqrt(vec->size);
+//     if (step < 2) {
+//         step = 2;
+//     }
+//     size_t i = step;
+//     for (;; i += step) {
+//         if (i >= vec->size) {
+//             if (data[vec->size - 1] == 0) {
+//                 return -1;
+//             }
+//             break;
+//         }
+//         if (data[i]) {
+//             break;
+//         }
+//     }
+//     for (size_t j = (i - step);; ++j) {
+//         if (data[j]) {
+//             return j;
+//         }
+//     }
+// }
 
 void vec_bubble_sort(vec_t const *vec, int (*cmp)(void const *, void const *)) {
     void *tmp = malloc_or_panic(vec->elsize);

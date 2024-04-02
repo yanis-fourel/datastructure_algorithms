@@ -51,7 +51,7 @@ void vec_remove(vec_t *vec, size_t index);
 /// element isze are different
 bool vec_eq(vec_t const *a, vec_t const *b);
 
-void vec_print(vec_t *vec);
+void vec_print(vec_t const *vec);
 
 /// O(n)
 /// Returns the first index of a value or -1 if not found
@@ -62,9 +62,11 @@ ssize_t vec_search(vec_t const *vec, void const *val);
 ssize_t vec_search_binary(vec_t const *vec, void const *val,
                           int (*cmp)(void const *, void const *));
 
-/// O(sqrt n))
+/// O(sqrt n)t
 /// Very specialized question, only the truest will know
-ssize_t vec_two_crystal_balls(vec_t const *vec);
+// ssize_t vec_two_crystal_balls(vec_t const *vec);
 
 /// O(n^2)
 void vec_bubble_sort(vec_t const *vec, int (*cmp)(void const *, void const *));
+
+#include "vec_impl.h"
