@@ -7,8 +7,8 @@
 #include "alloc.h"
 #include "vec.h"
 
-uint8_t *ptrat(vec_t const *vec, size_t idx) {
-    return &vec->data[idx * vec->elsize];
+uint8_t *ptrat(const vec_t *vec, uint8_t elsize, size_t idx) {
+    return &vec->data[idx * elsize];
 }
 
 vec_t *vec_new(size_t elsize, size_t size, size_t capacity) {
@@ -24,11 +24,10 @@ vec_t *vec_new(size_t elsize, size_t size, size_t capacity) {
 
     res->_cap = capacity;
     res->size = size;
-    res->elsize = elsize;
     return res;
 }
 
-vec_t *vec_from_buff(void const *buff, size_t elsize, size_t size) {
+vec_t *vec_from_buff(const void *buff, size_t elsize, size_t size) {
     vec_t *res = vec_new(elsize, 0, size);
     memcpy(res->data, buff, size * elsize);
     res->size = size;
@@ -40,41 +39,40 @@ void vec_free(vec_t *vec) {
     free(vec);
 }
 
-void vec_append(vec_t *vec, void const *data) {
+void vec_append(vec_t *vec, uint8_t elsize, const void *data) {
     if (vec->size == vec->_cap) {
         vec->_cap *= 2;
-        vec->data = realloc_or_panic(vec->data, vec->_cap * vec->elsize);
+        vec->data = realloc_or_panic(vec->data, vec->_cap * elsize);
     }
 
-    memcpy(ptrat(vec, vec->size), data, vec->elsize);
+    memcpy(ptrat(vec, elsize, vec->size), data, elsize);
     ++vec->size;
 }
 
-void vec_remove(vec_t *vec, size_t index) {
+void vec_remove(vec_t *vec, uint8_t elsize, size_t index) {
     if (vec->size < index) {
         fprintf(stderr, "Out of bound removal of index [%zu] on size %zu\n",
                 index, vec->size);
         exit(EXIT_FAILURE);
     }
-    for (size_t i = index * vec->elsize; i < vec->size * vec->elsize; ++i) {
-        ((uint8_t *)vec->data)[i] = ((uint8_t *)vec->data)[i + vec->elsize];
+    for (size_t i = index * elsize; i < vec->size * elsize; ++i) {
+        ((uint8_t *)vec->data)[i] = ((uint8_t *)vec->data)[i + elsize];
     }
     vec->size -= 1;
 }
 
-bool vec_eq(vec_t const *a, vec_t const *b) {
+bool vec_eq(const vec_t *a, const vec_t *b) {
     if (a->size != b->size) {
         return false;
     }
     return memcmp(a->data, b->data, a->size) == 0;
 }
 
-void vec_print(vec_t const *vec) {
-    printf("<vec size=%3zu, cap=%3zu, elsize=%3zu: [", vec->size, vec->_cap,
-           vec->elsize);
-    for (size_t i = 0; i < vec->size * vec->elsize; ++i) {
+void vec_print(const vec_t *vec, uint8_t elsize) {
+    printf("<vec size=%3zu, cap=%3zu: [", vec->size, vec->_cap);
+    for (size_t i = 0; i < vec->size * elsize; ++i) {
         if (i != 0) {
-            if (i % vec->elsize) {
+            if (i % elsize) {
                 printf(" ");
             } else {
                 printf(", ");
@@ -85,23 +83,23 @@ void vec_print(vec_t const *vec) {
     printf("]>\n");
 }
 
-ssize_t vec_search(vec_t const *vec, void const *val) {
+ssize_t vec_search(const vec_t *vec, uint8_t elsize, const void *val) {
     for (size_t i = 0; i < vec->size; ++i) {
-        if (memcmp(ptrat(vec, i), val, vec->elsize) == 0) {
+        if (memcmp(ptrat(vec, elsize, i), val, elsize) == 0) {
             return i;
         }
     }
     return -1;
 }
 
-ssize_t vec_search_binary(vec_t const *vec, void const *val,
-                          int (*cmp)(void const *, void const *)) {
+ssize_t vec_search_binary(const vec_t *vec, uint8_t elsize, const void *val,
+                          int (*cmp)(const void *, const void *)) {
     size_t lo = 0;
     size_t hi = vec->size;
 
     while (lo < hi) {
         size_t mid = (lo + hi) / 2;
-        int c = cmp(ptrat(vec, mid), val);
+        int c = cmp(ptrat(vec, elsize, mid), val);
         if (c == 0) {
             return mid;
         } else if (c < 0) {
@@ -143,14 +141,16 @@ ssize_t vec_search_binary(vec_t const *vec, void const *val,
 //     }
 // }
 
-void vec_bubble_sort(vec_t const *vec, int (*cmp)(void const *, void const *)) {
-    void *tmp = malloc_or_panic(vec->elsize);
+void vec_bubble_sort(const vec_t *vec, uint8_t elsize,
+                     int (*cmp)(const void *, const void *)) {
+    void *tmp = malloc_or_panic(elsize);
     for (size_t i = 0; i < vec->size; ++i) {
         for (size_t j = 0; j < vec->size - i - 1; ++j) {
-            if (cmp(ptrat(vec, j), ptrat(vec, j + 1)) > 0) {
-                memcpy(tmp, ptrat(vec, j), vec->elsize);
-                memcpy(ptrat(vec, j), ptrat(vec, j + 1), vec->elsize);
-                memcpy(ptrat(vec, j + 1), tmp, vec->elsize);
+            if (cmp(ptrat(vec, elsize, j), ptrat(vec, elsize, j + 1)) > 0) {
+                memcpy(tmp, ptrat(vec, elsize, j), elsize);
+                memcpy(ptrat(vec, elsize, j), ptrat(vec, elsize, j + 1),
+                       elsize);
+                memcpy(ptrat(vec, elsize, j + 1), tmp, elsize);
             }
         }
     }

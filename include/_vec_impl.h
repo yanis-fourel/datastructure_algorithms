@@ -22,7 +22,6 @@
 
 typedef struct {
     TYPE *data;
-    size_t __elsize;
     size_t size;
     size_t _cap;
 } _NAME(_t);
@@ -43,11 +42,11 @@ static inline void _NAME(_free)(_NAME(_t) * vec) {
 }
 
 static inline void _NAME(_append)(_NAME(_t) * vec, TYPE val) {
-    vec_append((vec_t *)vec, &val);
+    vec_append((vec_t *)vec, sizeof(TYPE), &val);
 }
 
 static inline void _NAME(_remove)(_NAME(_t) * vec, size_t index) {
-    vec_remove((vec_t *)vec, index);
+    vec_remove((vec_t *)vec, sizeof(TYPE), index);
 }
 
 static inline bool _NAME(_eq)(_NAME(_t) const *a, _NAME(_t) const *b) {
@@ -55,20 +54,20 @@ static inline bool _NAME(_eq)(_NAME(_t) const *a, _NAME(_t) const *b) {
 }
 
 static inline void _NAME(_print)(_NAME(_t) * vec) {
-    vec_print((const vec_t *)vec);
+    vec_print((const vec_t *)vec, sizeof(TYPE));
 }
 
 static inline ssize_t _NAME(_search)(_NAME(_t) const *vec, TYPE val) {
-    return vec_search((const vec_t *)vec, &val);
+    return vec_search((const vec_t *)vec, sizeof(TYPE), &val);
 }
 
-static inline ssize_t
-_NAME(_search_binary)(_NAME(_t) const *vec, TYPE val,
-                      int (*cmp)(const void *, const void *)) {
-    return vec_search_binary((const vec_t *)vec, &val, cmp);
+static inline ssize_t _NAME(_search_binary)(_NAME(_t) const *vec, TYPE val,
+                                            int (*cmp)(const void *,
+                                                       const void *)) {
+    return vec_search_binary((const vec_t *)vec, sizeof(TYPE), &val, cmp);
 }
 
 static inline void _NAME(_bubble_sort)(_NAME(_t) const *vec,
                                        int (*cmp)(const void *, const void *)) {
-    return vec_bubble_sort((const vec_t *)vec, cmp);
+    return vec_bubble_sort((const vec_t *)vec, sizeof(TYPE), cmp);
 }

@@ -23,6 +23,7 @@ int test_vec() {
     i32vec_t *myvec = i32vec_new(0, 0);
 
     if (myvec->size != 0) {
+        printf("size is %zu\n", myvec->size);
         FAIL;
     }
 
@@ -127,7 +128,7 @@ int test_i32vec_search() {
     return 0;
 }
 
-int cmp_int32(void const *ptra, void const *ptrb) {
+int cmp_int32(const void *ptra, const void *ptrb) {
     return *((int32_t *)ptra) - *((int32_t *)ptrb);
 }
 
