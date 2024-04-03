@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -86,7 +87,7 @@ void vec_print(const vec_t *vec, uint8_t elsize) {
 ssize_t vec_search(const vec_t *vec, uint8_t elsize, const void *val) {
     for (size_t i = 0; i < vec->size; ++i) {
         if (memcmp(ptrat(vec, elsize, i), val, elsize) == 0) {
-            return i;
+            return (ssize_t)i;
         }
     }
     return -1;
@@ -110,36 +111,6 @@ ssize_t vec_search_binary(const vec_t *vec, uint8_t elsize, const void *val,
     }
     return -1;
 }
-
-// TODO: only implement for vec_bool
-// ssize_t vec_two_crystal_balls(vec_t const *vec) {
-//     if (vec->size == 0) {
-//         return -1;
-//     }
-//
-//     uint8_t const *data = (uint8_t const *)vec->data;
-//     size_t step = sqrt(vec->size);
-//     if (step < 2) {
-//         step = 2;
-//     }
-//     size_t i = step;
-//     for (;; i += step) {
-//         if (i >= vec->size) {
-//             if (data[vec->size - 1] == 0) {
-//                 return -1;
-//             }
-//             break;
-//         }
-//         if (data[i]) {
-//             break;
-//         }
-//     }
-//     for (size_t j = (i - step);; ++j) {
-//         if (data[j]) {
-//             return j;
-//         }
-//     }
-// }
 
 void vec_bubble_sort(const vec_t *vec, uint8_t elsize,
                      int (*cmp)(const void *, const void *)) {

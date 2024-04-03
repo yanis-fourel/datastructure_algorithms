@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "_bitvec.h"
 #include "list32i.h"
 #include "vec.h"
 
@@ -176,76 +177,6 @@ int test_i32vec_binary_search() {
     return 0;
 }
 
-// i32vec_t *create_two_crystal_balls_input(size_t size, ssize_t answer) {
-//     i32vec_t *vec = i32vec_new(size, size);
-//
-//     if (answer >= 0) {
-//         for (; (size_t)answer < size; ++answer) {
-//             vec->data[answer] = 1;
-//         }
-//     }
-//     return vec;
-// }
-// int test_i32vec_two_crystal_balls() {
-//     {
-//         ssize_t answer = 234;
-//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = 0;
-//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = 999;
-//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = -1;
-//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = -1;
-//         i32vec_t *vec = create_two_crystal_balls_input(0, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = 0;
-//         i32vec_t *vec = create_two_crystal_balls_input(1, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     {
-//         ssize_t answer = 5;
-//         i32vec_t *vec = create_two_crystal_balls_input(6, answer);
-//         if (i32vec_two_crystal_balls(vec) != answer) {
-//             FAIL;
-//         }
-//         i32vec_free(vec);
-//     }
-//     return 0;
-// }
-
 int test_i32vec_bubble_sort() {
     {
         i32vec_t *vec = i32vec_from({1, 0, 3});
@@ -337,6 +268,250 @@ int test_i32vec_bubble_sort() {
 
     return 0;
 }
+
+int test_bitvec() {
+    bitvec_t *myvec = bitvec_new(0, 0);
+
+    if (myvec->size != 0) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+
+    {
+        bitvec_t *tmp = bitvec_from({});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    for (int i = 0; i < 20; i++) {
+        bitvec_append(myvec, i % 2);
+    }
+    if (myvec->size != 20) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+
+    bitvec_remove(myvec, 7);
+    if (myvec->size != 19) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from(
+            {false, true, false, true, false, true, false, false, true, false,
+             true, false, true, false, true, false, true, false, true});
+        if (!bitvec_eq(myvec, tmp)) {
+            bitvec_print(myvec);
+            bitvec_print(tmp);
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    if (bitvec_get(myvec, 0) != false) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 1) != true) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 2) != false) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 3) != true) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 7) != false) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 8) != true) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 9) != false) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 10) != true) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 15) != false) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 16) != true) {
+        FAIL;
+    }
+    if (bitvec_get(myvec, 17) != false) {
+        FAIL;
+    }
+
+    bitvec_remove(myvec, 14);
+    if (myvec->size != 18) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from({false, true, false, true, false, true,
+                                     false, false, true, false, true, false,
+                                     true, false, false, true, false, true});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    bitvec_set(myvec, 0, true);
+    bitvec_set(myvec, 1, false);
+    bitvec_set(myvec, 2, false);
+    bitvec_set(myvec, 7, true);
+    bitvec_set(myvec, 8, false);
+    bitvec_set(myvec, 9, true);
+    bitvec_set(myvec, 15, false);
+    bitvec_set(myvec, 16, true);
+    bitvec_set(myvec, 17, false);
+    {
+        bitvec_t *tmp = bitvec_from({true, false, false, true, false, true,
+                                     false, true, false, true, true, false,
+                                     true, false, false, false, true, false});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    bitvec_remove(myvec, 0);
+    if (myvec->size != 17) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from({false, false, true, false, true, false,
+                                     true, false, true, true, false, true,
+                                     false, false, false, true, false});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    bitvec_set(myvec, 33, true);
+    if (myvec->size != 34) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from(
+            {false, false, true,  false, true,  false, true,  false, true,
+             true,  false, true,  false, false, false, true,  false, false,
+             false, false, false, false, false, false, false, false, false,
+             false, false, false, false, false, false, true});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    for (int i = 0; i < 33; i++) {
+        bitvec_remove(myvec, 1);
+    }
+    if (myvec->size != 1) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from({false});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    bitvec_remove(myvec, 0);
+    if (myvec->size != 0) {
+        printf("size is %zu\n", myvec->size);
+        FAIL;
+    }
+    {
+        bitvec_t *tmp = bitvec_from({});
+        if (!bitvec_eq(myvec, tmp)) {
+            FAIL;
+        }
+        bitvec_free(tmp);
+    }
+
+    bitvec_free(myvec);
+
+    return 0;
+}
+
+// i32vec_t *create_two_crystal_balls_input(size_t size, ssize_t answer) {
+//     i32vec_t *vec = i32vec_new(size, size);
+//
+//     if (answer >= 0) {
+//         for (; (size_t)answer < size; ++answer) {
+//             vec->data[answer] = 1;
+//         }
+//     }
+//     return vec;
+// }
+// int test_i32vec_two_crystal_balls() {
+//     {
+//         ssize_t answer = 234;
+//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = 0;
+//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = 999;
+//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = -1;
+//         i32vec_t *vec = create_two_crystal_balls_input(1000, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = -1;
+//         i32vec_t *vec = create_two_crystal_balls_input(0, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = 0;
+//         i32vec_t *vec = create_two_crystal_balls_input(1, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     {
+//         ssize_t answer = 5;
+//         i32vec_t *vec = create_two_crystal_balls_input(6, answer);
+//         if (i32vec_two_crystal_balls(vec) != answer) {
+//             FAIL;
+//         }
+//         i32vec_free(vec);
+//     }
+//     return 0;
+// }
 
 // -------------------------------------------
 
@@ -676,8 +851,9 @@ int main(void) {
     RUN_TEST(test_vec);
     RUN_TEST(test_i32vec_search);
     RUN_TEST(test_i32vec_binary_search);
-    // RUN_TEST(test_i32vec_two_crystal_balls);
     RUN_TEST(test_i32vec_bubble_sort);
+    RUN_TEST(test_bitvec);
+    // RUN_TEST(test_i32vec_two_crystal_balls);
 
     RUN_TEST(test_list32i_push_back);
     RUN_TEST(test_list32i_push_front);

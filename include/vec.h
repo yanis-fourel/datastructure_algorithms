@@ -42,6 +42,7 @@ void vec_append(vec_t *vec, uint8_t elsize, const void *data);
 
 /// O(1)
 /// Removes given index
+/// Panics if the index is out of bound
 void vec_remove(vec_t *vec, uint8_t elsize, size_t index);
 
 /// Two vec are equal if their size and data are equal, even if the capacity or
@@ -59,10 +60,6 @@ ssize_t vec_search(const vec_t *vec, uint8_t elsize, const void *val);
 ssize_t vec_search_binary(const vec_t *vec, uint8_t elsize, const void *val,
                           int (*cmp)(const void *, const void *));
 
-/// O(sqrt n)t
-/// Very specialized question, only the truest will know
-// ssize_t vec_two_crystal_balls(vec_t const *vec);
-
 /// O(n^2)
 void vec_bubble_sort(const vec_t *vec, uint8_t elsize,
                      int (*cmp)(const void *, const void *));
@@ -72,13 +69,7 @@ void vec_bubble_sort(const vec_t *vec, uint8_t elsize,
 /// Here are all the basic vector type
 /// You are encouraged to generated your own variations for your own data types
 
-// TODO: Specialize it as a bitmap, for the lolz
-#    define TYPE bool
-#    define NAME vecb
-#    include "_vec_impl.h"
-#    define vecb_from(...) (vecb_t *)vec_from(bool, __VA_ARGS__)
-#    undef TYPE
-#    undef NAME
+#    include "_bitvec.h"
 
 #    define TYPE char
 #    define NAME charvec
