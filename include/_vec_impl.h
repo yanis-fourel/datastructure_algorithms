@@ -1,11 +1,27 @@
-/// TODO: explain why that works
-/// layout is the same
-/// static inline func can be redeclared
+///
+/// This file generates a wrapper API on top of vec_t that specializes vec_t
+/// for a certain type. The concept is very similar to a template in c++
+///
+/// The macro TYPE should be set to the type we want to implement the
+/// specialization for
+/// The macro NAME should be set to the prefix of all the functions that will
+/// be declared
+///
+/// This works by utilizing a few tricks:
+/// - We declare a new structure whose layout is strictly the same as vec_t,
+/// therefore casting a vec_t pointer into that new structure works, while
+/// still allowing us to have a new type.
+///
+/// - We declare all functions as static inline, so they all can be defined
+/// multiple times
 
-// NO INCLUDE GUARD
+// NO INCLUDE GUARD - This header is made to be included multiple times with
+// different defined NAME, but including it twice with the same defined NAME
+// will break
 
 #ifndef TYPE
-// Note: This is just for my linter to understand this file
+// Note: This is just for my linter to understand this file, TYPE should always
+// be defined when including this file
 #    define TYPE int32_t
 #    define NAME vec32i
 #    define SKIP_VEC_IMPL
