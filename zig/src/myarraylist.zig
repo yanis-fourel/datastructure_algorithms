@@ -59,6 +59,27 @@ pub fn MyArrayList(comptime T: type) type {
         pub fn empty(self: Self) bool {
             return self.items.len == 0;
         }
+
+        pub const Iterator = struct {
+            arraylist: *Self,
+            nextidx: usize,
+
+            pub fn next(self: *Iterator) ?T {
+                if (self.nextidx == self.arraylist.items.len) {
+                    return null;
+                }
+                const res = self.arraylist.items[self.nextidx];
+                self.nextidx += 1;
+                return res;
+            }
+        };
+
+        pub fn iterate(self: *Self) Iterator {
+            return Iterator{
+                .arraylist = self,
+                .nextidx = 0,
+            };
+        }
     };
 }
 
@@ -74,8 +95,18 @@ test "MyArrayList" {
     try expect(al.pop() == 42);
     try expect(al.pop() == null);
 
-    var i: u8 = 0;
-    while (i < 100) : (i += 1) {
-        try al.append(i);
+    {
+        var i: u8 = 0;
+        while (i < 100) : (i += 1) {
+            try al.append(i);
+        }
+    }
+
+    {
+        var iterator = al.iterate();
+        var i: u8 = 0;
+        while (iterator.next()) |val| : (i += 1) {
+            try expect(val == i);
+        }
     }
 }
