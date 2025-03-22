@@ -24,9 +24,8 @@ pub fn MyArrayList(comptime T: type) type {
             };
         }
 
-        pub fn deinit(self: *Self) void {
-            self.items.len = self.capacity;
-            self.alloc.free(self.items);
+        pub fn deinit(self: Self) void {
+            self.alloc.free(self.items.ptr[0..self.capacity]);
         }
 
         pub fn append(self: *Self, val: T) !void {
@@ -97,6 +96,15 @@ pub fn MyArrayList(comptime T: type) type {
                 self.items[idx] = self.items[mirroridx];
                 self.items[mirroridx] = tmp;
             }
+        }
+
+        pub fn clone(self: Self) !Self {
+            const mem = try self.alloc.dupe(T, self.items.ptr[0..self.capacity]);
+            return Self{
+                .items = mem.ptr[0..self.items.len],
+                .capacity = mem.len,
+                .alloc = self.alloc,
+            };
         }
     };
 }
@@ -234,4 +242,22 @@ test "revert" {
     try al.append(4);
     al.revert();
     try std.testing.expectEqualSlices(u8, &[_]u8{ 4, 2, 0, 1, 3 }, al.items);
+}
+
+test "clone" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    try al.append(0);
+    try al.append(1);
+    try al.append(2);
+    try al.append(3);
+    try al.append(4);
+
+    const al2 = try al.clone();
+    defer al2.deinit();
+    try std.testing.expectEqualSlices(u8, al2.items, al.items);
+    try expect(al2.items.ptr != al.items.ptr);
+    try expectEqual(al2.capacity, al.capacity);
 }
