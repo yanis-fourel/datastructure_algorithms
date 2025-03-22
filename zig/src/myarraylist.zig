@@ -59,7 +59,7 @@ pub fn MyArrayList(comptime T: type) type {
             return self.items.len == 0;
         }
 
-        /// Returns the index of the first occurence of a value, optionnaly
+        /// Returns the index of the first occurence of a value
         pub fn find(self: Self, val: T) ?usize {
             return self.findFrom(val, 0);
         }
@@ -105,6 +105,28 @@ pub fn MyArrayList(comptime T: type) type {
                 .capacity = mem.len,
                 .alloc = self.alloc,
             };
+        }
+
+        /// Returns the index of the first occurence of a value
+        /// Asserts arraylist is sorted
+        pub fn binarySearch(self: Self, val: T) ?usize {
+            assert(self.isSorted());
+
+            if (self.empty()) return null;
+
+            var lo: usize = 0;
+            var hi: usize = self.items.len;
+            var mid: usize = undefined;
+            while (lo < hi) {
+                mid = (lo + hi) / 2;
+                if (self.items[mid] >= val) {
+                    hi = mid;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+            if (lo < self.items.len and self.items[lo] == val) return lo;
+            return null;
         }
     };
 }
@@ -260,4 +282,60 @@ test "clone" {
     try std.testing.expectEqualSlices(u8, al2.items, al.items);
     try expect(al2.items.ptr != al.items.ptr);
     try expectEqual(al2.capacity, al.capacity);
+}
+
+test "binarySearch" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    try expectEqual(null, al.binarySearch(0));
+
+    try al.append(0);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(null, al.binarySearch(1));
+    try al.append(1);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(null, al.binarySearch(2));
+    try al.append(2);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(2, al.binarySearch(2));
+    try expectEqual(null, al.binarySearch(3));
+    try al.append(3);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(2, al.binarySearch(2));
+    try expectEqual(3, al.binarySearch(3));
+    try expectEqual(null, al.binarySearch(4));
+    try al.append(4);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(2, al.binarySearch(2));
+    try expectEqual(3, al.binarySearch(3));
+    try expectEqual(4, al.binarySearch(4));
+    try expectEqual(null, al.binarySearch(5));
+    try al.append(5);
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(2, al.binarySearch(2));
+    try expectEqual(3, al.binarySearch(3));
+    try expectEqual(4, al.binarySearch(4));
+    try expectEqual(5, al.binarySearch(5));
+    try expectEqual(null, al.binarySearch(6));
+
+    try al.append(8);
+    try al.append(8);
+    try al.append(8);
+    try al.append(8);
+    try al.append(8);
+
+    try expectEqual(0, al.binarySearch(0));
+    try expectEqual(1, al.binarySearch(1));
+    try expectEqual(2, al.binarySearch(2));
+    try expectEqual(3, al.binarySearch(3));
+    try expectEqual(4, al.binarySearch(4));
+    try expectEqual(5, al.binarySearch(5));
+    try expectEqual(6, al.binarySearch(8));
 }
