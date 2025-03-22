@@ -29,12 +29,18 @@ pub fn MyArrayList(comptime T: type) type {
         }
 
         pub fn append(self: *Self, val: T) !void {
-            if (self.items.len + 1 >= self.capacity) {
-                try self.grow();
-            }
+            try self.ensureCapacity(self.items.len + 1);
             self.items.len += 1;
             self.items[self.items.len - 1] = val;
         }
+
+        // pub fn appendSlice(self: *Self, val: T) !void {
+        //     if (self.items.len + 1 >= self.capacity) {
+        //         try self.grow();
+        //     }
+        //     self.items.len += 1;
+        //     self.items[self.items.len - 1] = val;
+        // }
 
         pub fn pop(self: *Self) ?T {
             if (self.items.len == 0) {
@@ -45,14 +51,24 @@ pub fn MyArrayList(comptime T: type) type {
             return res;
         }
 
-        pub fn grow(self: *Self) !void {
-            const newlen = (self.capacity + 1) * 2;
-            const newslice = try self.alloc.alloc(T, newlen);
+        pub fn grow(self: *Self, new_capacity: usize) !void {
+            const newslice = try self.alloc.alloc(T, new_capacity);
 
             @memcpy(newslice[0..self.items.len], self.items);
             self.alloc.free(self.items.ptr[0..self.capacity]);
             self.items.ptr = newslice.ptr;
             self.capacity = newslice.len;
+        }
+
+        pub fn ensureCapacity(self: *Self, capacity: usize) !void {
+            if (capacity <= self.capacity) {
+                return;
+            }
+            var newcapacity = self.capacity;
+            while (newcapacity < capacity) {
+                newcapacity = (newcapacity + 1) * 2;
+            }
+            try self.grow(newcapacity);
         }
 
         pub fn empty(self: Self) bool {
