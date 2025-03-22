@@ -34,13 +34,16 @@ pub fn MyArrayList(comptime T: type) type {
             self.items[self.items.len - 1] = val;
         }
 
-        // pub fn appendSlice(self: *Self, val: T) !void {
-        //     if (self.items.len + 1 >= self.capacity) {
-        //         try self.grow();
-        //     }
-        //     self.items.len += 1;
-        //     self.items[self.items.len - 1] = val;
-        // }
+        pub fn appendSlice(self: *Self, slice: []const T) !void {
+            const newlen = self.items.len + slice.len;
+            try self.ensureCapacity(newlen);
+            @memcpy(self.items.ptr[self.items.len..newlen], slice);
+            self.items.len += slice.len;
+        }
+
+        pub fn clear(self: *Self) void {
+            self.items.len = 0;
+        }
 
         pub fn pop(self: *Self) ?T {
             if (self.items.len == 0) {
@@ -354,4 +357,22 @@ test "binarySearch" {
     try expectEqual(4, al.binarySearch(4));
     try expectEqual(5, al.binarySearch(5));
     try expectEqual(6, al.binarySearch(8));
+}
+
+test "appendSlice" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    try al.appendSlice(&[_]u8{});
+    try std.testing.expectEqualSlices(u8, &[_]u8{}, al.items);
+    try al.appendSlice(&[_]u8{ 1, 2, 3 });
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 1, 2, 3 }, al.items);
+    try al.appendSlice(&[_]u8{ 4, 5, 6 });
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 1, 2, 3, 4, 5, 6 }, al.items);
+    al.clear();
+    try al.appendSlice(&[_]u8{10});
+    try std.testing.expectEqualSlices(u8, &[_]u8{10}, al.items);
+    try al.appendSlice(&[_]u8{0});
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 10, 0 }, al.items);
 }
