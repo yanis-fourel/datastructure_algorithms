@@ -60,11 +60,18 @@ pub fn MyArrayList(comptime T: type) type {
             return self.items.len == 0;
         }
 
-        /// Returns the index of the first occurence of a value
+        /// Returns the index of the first occurence of a value, optionnaly
         pub fn find(self: Self, val: T) ?usize {
-            for (self.items, 0..) |v, i| {
-                if (v == val) {
-                    return i;
+            return self.findFrom(val, 0);
+        }
+
+        /// Returns the index of the first occurence of a value starting from index
+        pub fn findFrom(self: Self, val: T, startidx: usize) ?usize {
+            if (startidx < self.items.len) {
+                for (self.items[startidx..], startidx..) |v, i| {
+                    if (v == val) {
+                        return i;
+                    }
                 }
             }
             return null;
@@ -118,4 +125,48 @@ test "find" {
     try expectEqual(2, al.find(1));
     try expectEqual(3, al.find(3));
     try expectEqual(4, al.find(11));
+}
+
+test "findFrom" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    try expectEqual(null, al.findFrom(0, 0));
+    try expectEqual(null, al.findFrom(0, 100));
+    try expectEqual(null, al.findFrom(42, 0));
+    try al.append(42);
+    try expectEqual(null, al.findFrom(0, 100));
+    try expectEqual(0, al.findFrom(42, 0));
+    try expectEqual(null, al.findFrom(42, 1));
+    try al.append(42);
+    try expectEqual(null, al.findFrom(0, 0));
+    try expectEqual(null, al.findFrom(0, 100));
+    try expectEqual(0, al.findFrom(42, 0));
+    try expectEqual(1, al.findFrom(42, 1));
+    try expectEqual(null, al.findFrom(42, 2));
+    try expectEqual(null, al.findFrom(42, 100));
+    try al.append(1);
+    try al.append(3);
+    try al.append(11);
+    try expectEqual(null, al.findFrom(0, 0));
+    try expectEqual(null, al.findFrom(0, 3));
+    try expectEqual(0, al.findFrom(42, 0));
+    try expectEqual(1, al.findFrom(42, 1));
+    try expectEqual(null, al.findFrom(42, 2));
+    try expectEqual(2, al.findFrom(1, 0));
+    try expectEqual(2, al.findFrom(1, 1));
+    try expectEqual(2, al.findFrom(1, 2));
+    try expectEqual(null, al.findFrom(1, 3));
+    try expectEqual(3, al.findFrom(3, 0));
+    try expectEqual(3, al.findFrom(3, 1));
+    try expectEqual(3, al.findFrom(3, 2));
+    try expectEqual(3, al.findFrom(3, 3));
+    try expectEqual(null, al.findFrom(3, 4));
+    try expectEqual(4, al.findFrom(11, 0));
+    try expectEqual(4, al.findFrom(11, 1));
+    try expectEqual(4, al.findFrom(11, 2));
+    try expectEqual(4, al.findFrom(11, 3));
+    try expectEqual(4, al.findFrom(11, 4));
+    try expectEqual(null, al.findFrom(11, 5));
 }
