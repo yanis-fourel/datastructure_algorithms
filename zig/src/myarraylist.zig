@@ -76,6 +76,18 @@ pub fn MyArrayList(comptime T: type) type {
             }
             return null;
         }
+
+        pub fn isSorted(self: Self) bool {
+            if (self.items.len <= 1) {
+                return true;
+            }
+            for (self.items[0 .. self.items.len - 1], self.items[1..]) |a, b| {
+                if (a > b) {
+                    return false;
+                }
+            }
+            return true;
+        }
     };
 }
 
@@ -169,4 +181,24 @@ test "findFrom" {
     try expectEqual(4, al.findFrom(11, 3));
     try expectEqual(4, al.findFrom(11, 4));
     try expectEqual(null, al.findFrom(11, 5));
+}
+
+test "issorted" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    try expect(al.isSorted());
+    try al.append(50);
+    try expect(al.isSorted());
+    try al.append(0);
+    try expect(!al.isSorted());
+    _ = al.pop();
+    try al.append(51);
+    try expect(al.isSorted());
+    try al.append(49);
+    try expect(!al.isSorted());
+    _ = al.pop();
+    try al.append(100);
+    try expect(al.isSorted());
 }
