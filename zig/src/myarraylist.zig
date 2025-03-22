@@ -88,6 +88,16 @@ pub fn MyArrayList(comptime T: type) type {
             }
             return true;
         }
+
+        pub fn revert(self: *Self) void {
+            var tmp: T = undefined;
+            for (0..self.items.len / 2) |idx| {
+                const mirroridx = self.items.len - 1 - idx;
+                tmp = self.items[idx];
+                self.items[idx] = self.items[mirroridx];
+                self.items[mirroridx] = tmp;
+            }
+        }
     };
 }
 
@@ -201,4 +211,27 @@ test "issorted" {
     _ = al.pop();
     try al.append(100);
     try expect(al.isSorted());
+}
+
+test "revert" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    al.revert();
+    try al.append(0);
+    al.revert();
+    try std.testing.expectEqualSlices(u8, &[_]u8{0}, al.items);
+    try al.append(1);
+    al.revert();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 1, 0 }, al.items);
+    try al.append(2);
+    al.revert();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 2, 0, 1 }, al.items);
+    try al.append(3);
+    al.revert();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 3, 1, 0, 2 }, al.items);
+    try al.append(4);
+    al.revert();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 4, 2, 0, 1, 3 }, al.items);
 }
