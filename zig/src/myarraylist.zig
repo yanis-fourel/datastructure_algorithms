@@ -147,6 +147,20 @@ pub fn MyArrayList(comptime T: type) type {
             if (lo < self.items.len and self.items[lo] == val) return lo;
             return null;
         }
+
+        pub fn bubbleSort(self: *Self) void {
+            var until = self.items.len;
+            var tmp: T = undefined;
+            while (until > 1) : (until -= 1) {
+                for (1..until) |idx| {
+                    if (self.items[idx - 1] > self.items[idx]) {
+                        tmp = self.items[idx - 1];
+                        self.items[idx - 1] = self.items[idx];
+                        self.items[idx] = tmp;
+                    }
+                }
+            }
+        }
     };
 }
 
@@ -375,4 +389,51 @@ test "appendSlice" {
     try std.testing.expectEqualSlices(u8, &[_]u8{10}, al.items);
     try al.appendSlice(&[_]u8{0});
     try std.testing.expectEqualSlices(u8, &[_]u8{ 10, 0 }, al.items);
+}
+
+test "bubbleSort" {
+    const alloc = std.testing.allocator;
+    var al = try MyArrayList(u8).init(alloc);
+    defer al.deinit();
+
+    al.bubbleSort();
+
+    const one_to_ten_cases = [_][10]u8{
+        [_]u8{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+        [_]u8{ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 },
+        [_]u8{ 9, 7, 0, 2, 3, 8, 4, 6, 5, 1 },
+        [_]u8{ 6, 0, 7, 9, 5, 8, 3, 4, 2, 1 },
+        [_]u8{ 8, 0, 4, 6, 3, 2, 5, 1, 9, 7 },
+        [_]u8{ 3, 0, 1, 6, 5, 9, 2, 4, 8, 7 },
+    };
+
+    for (one_to_ten_cases) |case| {
+        al.clear();
+        try al.appendSlice(&case);
+        al.bubbleSort();
+        std.testing.expectEqualSlices(u8, &[_]u8{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, al.items) catch |err| {
+            print("For test case {any}\n", .{case});
+            return err;
+        };
+    }
+
+    al.clear();
+    try al.appendSlice(&[_]u8{0});
+    al.bubbleSort();
+    try std.testing.expectEqualSlices(u8, &[_]u8{0}, al.items);
+
+    al.clear();
+    try al.appendSlice(&[_]u8{ 0, 0, 0, 0, 0, 0 });
+    al.bubbleSort();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 0, 0, 0, 0, 0, 0 }, al.items);
+
+    al.clear();
+    try al.appendSlice(&[_]u8{ 0, 1 });
+    al.bubbleSort();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 0, 1 }, al.items);
+
+    al.clear();
+    try al.appendSlice(&[_]u8{ 1, 0 });
+    al.bubbleSort();
+    try std.testing.expectEqualSlices(u8, &[_]u8{ 0, 1 }, al.items);
 }
