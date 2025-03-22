@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    unixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     zig.url = "github:mitchellh/zig-overlay";
 
@@ -16,6 +17,7 @@
   outputs = {
     self,
     nixpkgs,
+    unixpkgs,
     flake-utils,
     ...
   } @ inputs: let
@@ -32,10 +34,13 @@
     flake-utils.lib.eachSystem systems (
       system: let
         pkgs = import nixpkgs {inherit overlays system;};
+        upkgs = import unixpkgs {inherit overlays system;};
       in {
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
-            zigpkgs.master
+          nativeBuildInputs = [
+            # upkgs.zigpkgs.master
+            upkgs.zls
+            upkgs.zig
           ];
         };
       }
