@@ -50,6 +50,23 @@ pub fn mazeSolverRec(allocator: std.mem.Allocator, maze: Maze) ![]Direction {
 
 /// Returns whether it solved it
 fn _mazeSolverRec(maze: Maze, res: *MyArrayList(Direction), x: usize, y: usize) !bool {
+    if (x == std.math.maxInt(usize) or x == maze.col or
+        y == std.math.maxInt(usize) or y == maze.row)
+    {
+        return false;
+    }
+
+    if (maze.get(x, y) == 'E') {
+        return true;
+    }
+
+    if (maze.get(x, y) != '.') {
+        return false;
+    }
+
+    maze.set(x, y, 'x');
+    defer maze.set(x, y, '.');
+
     // std.debug.print("{d} {d}\n", .{ x, y });
     // for (maze.buf.items, 0..) |tile, idx| {
     //     std.debug.print("{u}", .{tile});
@@ -59,37 +76,34 @@ fn _mazeSolverRec(maze: Maze, res: *MyArrayList(Direction), x: usize, y: usize) 
     // }
     // std.debug.print("\n", .{});
 
-    if (maze.get(x, y) == 'E') {
-        return true;
-    }
-
-    maze.set(x, y, 'x');
-    defer maze.set(x, y, '.');
-
-    if (x > 0 and _canWalk(maze, x - 1, y)) {
+    {
         try res.append(.West);
         const solved = try _mazeSolverRec(maze, res, x - 1, y);
         if (solved) return true;
         _ = res.pop();
     }
-    if (x + 1 < maze.col and _canWalk(maze, x + 1, y)) {
+
+    {
         try res.append(.East);
         const solved = try _mazeSolverRec(maze, res, x + 1, y);
         if (solved) return true;
         _ = res.pop();
     }
-    if (y > 0 and _canWalk(maze, x, y - 1)) {
+
+    {
         try res.append(.North);
         const solved = try _mazeSolverRec(maze, res, x, y - 1);
         if (solved) return true;
         _ = res.pop();
     }
-    if (y + 1 < maze.row and _canWalk(maze, x, y + 1)) {
+
+    {
         try res.append(.South);
         const solved = try _mazeSolverRec(maze, res, x, y + 1);
         if (solved) return true;
         _ = res.pop();
     }
+
     return false;
 }
 
