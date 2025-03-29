@@ -89,6 +89,12 @@ pub fn MyArrayList(comptime T: type) type {
             try self.grow(newcapacity);
         }
 
+        pub fn cloneSlice(self: Self) ![]T {
+            const res = try self.alloc.alloc(T, self.items.len);
+            @memcpy(res, self.items);
+            return res;
+        }
+
         pub fn empty(self: Self) bool {
             return self.items.len == 0;
         }
