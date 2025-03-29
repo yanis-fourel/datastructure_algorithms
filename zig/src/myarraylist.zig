@@ -16,10 +16,25 @@ pub fn MyArrayList(comptime T: type) type {
         capacity: usize,
         alloc: Allocator,
 
-        pub fn init(alloc: Allocator) !Self {
+        pub fn init(alloc: Allocator) Self {
             return Self{
                 .capacity = 0,
                 .items = &[_]T{},
+                .alloc = alloc,
+            };
+        }
+
+        pub fn initCapacity(alloc: Allocator, capacity: usize) !Self {
+            var res = Self.init(alloc);
+            errdefer res.deinit();
+            try res.grow(capacity);
+            return res;
+        }
+
+        pub fn initSlice(alloc: Allocator, slice: []T) !Self {
+            return Self{
+                .capacity = slice.len,
+                .items = slice,
                 .alloc = alloc,
             };
         }
@@ -169,7 +184,7 @@ const expectEqual = std.testing.expectEqual;
 
 test "MyArrayList" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try expectEqual(null, al.pop());
@@ -191,7 +206,7 @@ test "MyArrayList" {
 
 test "find" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try expectEqual(null, al.find(0));
@@ -214,7 +229,7 @@ test "find" {
 
 test "findFrom" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try expectEqual(null, al.findFrom(0, 0));
@@ -258,7 +273,7 @@ test "findFrom" {
 
 test "issorted" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try expect(al.isSorted());
@@ -278,7 +293,7 @@ test "issorted" {
 
 test "revert" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     al.revert();
@@ -301,7 +316,7 @@ test "revert" {
 
 test "clone" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try al.append(0);
@@ -319,7 +334,7 @@ test "clone" {
 
 test "binarySearch" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try expectEqual(null, al.binarySearch(0));
@@ -375,7 +390,7 @@ test "binarySearch" {
 
 test "appendSlice" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     try al.appendSlice(&[_]u8{});
@@ -393,7 +408,7 @@ test "appendSlice" {
 
 test "bubbleSort" {
     const alloc = std.testing.allocator;
-    var al = try MyArrayList(u8).init(alloc);
+    var al = MyArrayList(u8).init(alloc);
     defer al.deinit();
 
     al.bubbleSort();
