@@ -2,24 +2,39 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const AnyReader = std.io.AnyReader;
 
-pub fn readWord(writer: std.io.AnyWriter, reader: std.io.AnyReader) !u8 {
-    var i: u8 = 0;
-    var didReadWord = false;
-    while (true) {
-        const byte = try reader.readByte();
-        if (std.ascii.isWhitespace(byte)) {
-            if (didReadWord) {
-                break;
-            } else {
-                continue;
-            }
-        }
-        didReadWord = true;
-        try writer.writeByte(byte);
-        i += 1;
+const IntReader = struct {
+    const Self = @This();
+    reader: std.io.AnyReader,
+    buf: [16]u8 = undefined,
+
+    pub fn init(reader: std.io.AnyReader) Self {
+        return Self{ .reader = reader };
     }
-    return i;
-}
+
+    pub fn next(self: *Self) !u32 {
+        const word = try self.nextWord();
+        return try std.fmt.parseInt(u32, word, 0);
+    }
+
+    pub fn nextWord(self: *Self) ![]u8 {
+        var i: u8 = 0;
+        var didReadWord = false;
+        while (true) {
+            const byte = try self.reader.readByte();
+            if (std.ascii.isWhitespace(byte)) {
+                if (didReadWord) {
+                    break;
+                } else {
+                    continue;
+                }
+            }
+            didReadWord = true;
+            self.buf[i] = byte;
+            i += 1;
+        }
+        return self.buf[0..i];
+    }
+};
 
 const Maze = struct {
     width: u32,
@@ -31,14 +46,10 @@ const Maze = struct {
     data: []u8,
 
     pub fn deserialize(allocator: Allocator, reader: AnyReader) !Maze {
-        var buf: [16]u8 = undefined;
-        var fbs = std.io.fixedBufferStream(&buf);
+        var intReader = IntReader.init(reader);
 
-        const len1 = try readWord(fbs.writer().any(), reader);
-        const width = try std.fmt.parseInt(u32, buf[0..len1], 0);
-        fbs.reset();
-        const len2 = try readWord(fbs.writer().any(), reader);
-        const height = try std.fmt.parseInt(u32, buf[0..len2], 0);
+        const width = try intReader.next();
+        const height = try intReader.next();
 
         _ = allocator;
 
