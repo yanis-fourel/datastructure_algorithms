@@ -37,6 +37,7 @@ const IntReader = struct {
 };
 
 const Maze = struct {
+    const Self = @This();
     width: u32,
     height: u32,
     start_x: u32,
@@ -44,27 +45,46 @@ const Maze = struct {
     end_x: u32,
     end_y: u32,
     data: []u8,
+    allocator: Allocator,
 
     pub fn deserialize(allocator: Allocator, reader: AnyReader) !Maze {
         var intReader = IntReader.init(reader);
 
         const width = try intReader.next();
         const height = try intReader.next();
+        const start_x = try intReader.next();
+        const start_y = try intReader.next();
+        const end_x = try intReader.next();
+        const end_y = try intReader.next();
 
-        _ = allocator;
+        var data = try allocator.alloc(u8, width * height);
+        errdefer allocator.free(data);
+
+        var i: u32 = 0;
+        while (i < data.len) {
+            const byte = try reader.readByte();
+            if (std.ascii.isWhitespace(byte)) continue;
+            data[i] = byte;
+            i += 1;
+        }
 
         return Maze{
             .width = width,
             .height = height,
-            .start_x = 0,
-            .start_y = 0,
-            .end_x = 0,
-            .end_y = 0,
-            .data = &[_]u8{},
+            .start_x = start_x,
+            .start_y = start_y,
+            .end_x = end_x,
+            .end_y = end_y,
+            .data = data,
+            .allocator = allocator,
         };
     }
 
     // pub fn serialize(writer: Writer) !void {}
+
+    pub fn deinit(self: Self) void {
+        self.allocator.free(self.data);
+    }
 };
 
 test "deserialize" {
@@ -81,6 +101,7 @@ test "deserialize" {
     const reader = fis.reader();
 
     const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
 
     try std.testing.expectEqual(4, maze.width);
     try std.testing.expectEqual(3, maze.height);
