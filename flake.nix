@@ -41,6 +41,8 @@
             # upkgs.zigpkgs.master
             upkgs.zls
             upkgs.zig
+            upkgs.lldb
+            upkgs.gnumake
           ];
         };
       }
