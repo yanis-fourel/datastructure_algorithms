@@ -1,6 +1,7 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const AnyReader = std.io.AnyReader;
+const AnyWriter = std.io.AnyWriter;
 
 const IntReader = struct {
     const Self = @This();
@@ -80,7 +81,17 @@ const Maze = struct {
         };
     }
 
-    // pub fn serialize(writer: Writer) !void {}
+    pub fn serialize(self: Self, writer: AnyWriter) !void {
+        try std.fmt.format(writer, "{d} {d}\n", .{ self.width, self.height });
+        try std.fmt.format(writer, "{d} {d}\n", .{ self.start_x, self.start_y });
+        try std.fmt.format(writer, "{d} {d}", .{ self.end_x, self.end_y });
+
+        var x: u32 = 0;
+        while (x < self.data.len) : (x += self.width) {
+            try writer.writeAll("\n");
+            try writer.writeAll(self.data[x .. x + self.width]);
+        }
+    }
 
     pub fn deinit(self: Self) void {
         self.allocator.free(self.data);
@@ -164,4 +175,77 @@ test "deserialize 2x1" {
     try std.testing.expectEqual(2, maze.width);
     try std.testing.expectEqual(1, maze.height);
     try std.testing.expectEqualSlices(u8, "..", maze.data);
+}
+
+test "serialize" {
+    const expected =
+        \\4 5
+        \\2 2
+        \\3 4
+        \\.##.
+        \\..#.
+        \\#...
+        \\##.#
+        \\##..
+    ;
+
+    var fbs_reader = std.io.fixedBufferStream(expected);
+    const reader = fbs_reader.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    var actual = std.ArrayList(u8).init(std.testing.allocator);
+    defer actual.deinit();
+
+    const writer = actual.writer();
+    try maze.serialize(writer.any());
+
+    try std.testing.expectEqualStrings(expected, actual.items);
+}
+
+test "serialize 1x1" {
+    const expected =
+        \\1 1
+        \\0 0
+        \\0 0
+        \\.
+    ;
+
+    var fbs_reader = std.io.fixedBufferStream(expected);
+    const reader = fbs_reader.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    var actual = std.ArrayList(u8).init(std.testing.allocator);
+    defer actual.deinit();
+
+    const writer = actual.writer();
+    try maze.serialize(writer.any());
+
+    try std.testing.expectEqualStrings(expected, actual.items);
+}
+
+test "serialize 2x1" {
+    const expected =
+        \\2 1
+        \\0 0
+        \\1 0
+        \\..
+    ;
+
+    var fbs_reader = std.io.fixedBufferStream(expected);
+    const reader = fbs_reader.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    var actual = std.ArrayList(u8).init(std.testing.allocator);
+    defer actual.deinit();
+
+    const writer = actual.writer();
+    try maze.serialize(writer.any());
+
+    try std.testing.expectEqualStrings(expected, actual.items);
 }
