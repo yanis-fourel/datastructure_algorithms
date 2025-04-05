@@ -105,4 +105,5 @@ test "deserialize" {
 
     try std.testing.expectEqual(4, maze.width);
     try std.testing.expectEqual(3, maze.height);
+    try std.testing.expectEqualSlices(u8, "#.##...#####", maze.data);
 }
