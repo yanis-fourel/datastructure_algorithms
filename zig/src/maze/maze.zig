@@ -87,7 +87,7 @@ const Maze = struct {
     }
 };
 
-test "deserialize" {
+test "deserialize simple" {
     const buf =
         \\4 3
         \\0 1
@@ -106,4 +106,62 @@ test "deserialize" {
     try std.testing.expectEqual(4, maze.width);
     try std.testing.expectEqual(3, maze.height);
     try std.testing.expectEqualSlices(u8, "#.##...#####", maze.data);
+}
+
+test "deserialize 1x1" {
+    const buf =
+        \\1 1
+        \\0 0
+        \\0 0
+        \\.
+    ;
+
+    var fis = std.io.fixedBufferStream(buf);
+    const reader = fis.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    try std.testing.expectEqual(1, maze.width);
+    try std.testing.expectEqual(1, maze.height);
+    try std.testing.expectEqualSlices(u8, ".", maze.data);
+}
+
+test "deserialize 1x2" {
+    const buf =
+        \\1 2
+        \\0 0
+        \\0 1
+        \\.
+        \\.
+    ;
+
+    var fis = std.io.fixedBufferStream(buf);
+    const reader = fis.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    try std.testing.expectEqual(1, maze.width);
+    try std.testing.expectEqual(2, maze.height);
+    try std.testing.expectEqualSlices(u8, "..", maze.data);
+}
+
+test "deserialize 2x1" {
+    const buf =
+        \\2 1
+        \\0 0
+        \\1 0
+        \\..
+    ;
+
+    var fis = std.io.fixedBufferStream(buf);
+    const reader = fis.reader();
+
+    const maze = try Maze.deserialize(std.testing.allocator, reader.any());
+    defer maze.deinit();
+
+    try std.testing.expectEqual(2, maze.width);
+    try std.testing.expectEqual(1, maze.height);
+    try std.testing.expectEqualSlices(u8, "..", maze.data);
 }
